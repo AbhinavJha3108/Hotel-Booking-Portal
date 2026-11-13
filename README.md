@@ -1,75 +1,83 @@
 # Hotel Booking Portal
 
-A simple, robust full-stack hotel booking portal built with **Java (Spring Boot 3)**, **React (Vite)**, and **MySQL**.
+A robust, full-stack hotel booking application built with **Java (Spring Boot 3)**, **React 18 (Vite)**, and **MySQL 8.x**.
 
 ---
 
-## Features
-- **Browse & Search Hotels**: Filter properties by destination and select check-in and check-out dates.
-- **Dynamic Real-Time Availability**: Room availability is dynamically calculated based on existing confirmed bookings.
-- **Live Price Preview**: Automatically calculates total nights and total stay amount before booking confirmation.
-- **Atomic Booking Guarantee**: Prevents double-booking of the last available room using database pessimistic locking.
-- **Self-Service Reservation Management**: Retrieve bookings using the booking reference and guest email, with one-click cancellation that immediately releases reserved room capacity.
-- **Surprise Feature - Contactless Hotel Check-In Pass**: Generates an airline-style digital check-in boarding pass with a dynamic, scannable QR code and 1-click **"Print / Save PDF"** styling for seamless front-desk verification.
+## 1. Project Overview & Features
+- **Browse & Search Hotels**: View properties with detailed amenities, nightly rates, high-resolution imagery, and location badges.
+- **Dynamic Availability Engine**: Real-time room availability computed by evaluating overlapping confirmed stays.
+- **Live Price Preview**: Instant calculation of total nights and total stay amounts on the backend before booking confirmation.
+- **Atomic Booking Guarantee**: Serializes concurrent reservations using MySQL row-level write locks (`SELECT ... FOR UPDATE`) to prevent overselling the last available room.
+- **Self-Service Reservation Management**: Retrieve bookings by reference number and guest email, with one-click cancellation that immediately releases reserved inventory.
+- **Surprise Feature - Contactless Check-In Pass**: Generates an airline-style digital boarding pass with a dynamic, scannable QR code and dedicated `@media print` styling for one-click PDF saving and front-desk verification.
 
 ---
 
-## Tech Stack
-- **Backend**: Java 17+, Spring Boot 3.3.5, Spring Data JPA, Hibernate, Maven
-- **Frontend**: React 18, Vite, Tailwind CSS, Lucide Icons, `qrcode.react`
-- **Database**: MySQL 8.x
-- **Testing**: JUnit 5, Mockito
+## 2. Technology Stack & Key Libraries
+
+| Layer | Technology | Key Libraries / Drivers | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Backend** | Java 17+, Spring Boot 3.3.5 | `spring-boot-starter-web` | REST API endpoints and routing |
+| | | `spring-boot-starter-data-jpa` | ORM, repository abstraction, and transactional boundaries |
+| | | `mysql-connector-j` | High-performance MySQL 8 JDBC connectivity |
+| | | `HikariCP` | Production-grade connection pooling (bundled with Spring Boot) |
+| | | `spring-boot-starter-validation`| Bean validation (`@NotBlank`, `@Email`, `@NotNull`) |
+| | | `spring-boot-starter-test` | JUnit 5 and Mockito for isolated unit/integration tests |
+| **Frontend** | React 18, Vite | `tailwindcss` | Responsive, utility-first styling |
+| | | `lucide-react` | Clean, accessible SVG iconography |
+| | | `qrcode.react` | Client-side SVG QR code generator for the check-in pass |
+| **Database** | MySQL 8.x | Relational engine | ACID transaction support and composite indexing |
 
 ---
 
-## Prerequisites
-Ensure the following are installed on your machine:
-- **Java Development Kit (JDK 17 or higher)**
-- **Node.js (v18+) & npm**
-- **MySQL Server (v8.x)** running on port `3306`
+## 3. Prerequisites
+- **JDK 17 or higher** installed.
+- **Node.js (v18+) and npm** installed.
+- **MySQL Server (v8.x)** running locally on port `3306`.
 
 ---
 
-## Step-by-Step Setup Instructions
+## 4. Step-by-Step Setup Instructions
 
-### 1. Database Setup
-1. Open MySQL Workbench or your terminal:
+### Step 1: Database Initialization
+1. Connect to MySQL via Workbench or CLI:
    ```bash
    mysql -u root -p
    ```
 2. Execute the initialization script located at `database/init.sql`:
    ```sql
-   source /path/to/TC/database/init.sql;
+   source database/init.sql;
    ```
-   *This creates the `hotel_booking_db` schema, tables (`hotels`, `bookings`), indexes, and seeds 6 realistic luxury properties.*
+   *(Creates the `hotel_booking_db` schema, tables with composite indexes, and seeds 6 luxury properties across Jaipur, Goa, Bangalore, Manali, Mumbai, and Kerala).*
 
 ---
 
-### 2. Backend Setup (Spring Boot)
-1. Configure database credentials in `backend/src/main/resources/application.properties` if different from default (`root`/`password`):
+### Step 2: Running the Backend (Spring Boot)
+1. Verify database credentials in `backend/src/main/resources/application.properties` (default is `root`/`password`):
    ```properties
    spring.datasource.url=jdbc:mysql://localhost:3306/hotel_booking_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
    spring.datasource.username=root
    spring.datasource.password=password
    ```
-2. Run the application:
-   - **Using VS Code / IDE**: Open `backend/src/main/java/com/tc/hotelbooking/HotelBookingApplication.java` and click **Run**.
-   - **Using Maven CLI**:
+2. Start the application:
+   - **In VS Code**: Open `backend/src/main/java/com/tc/hotelbooking/HotelBookingApplication.java` and click **Run** above `main()`.
+   - **Using Terminal**:
      ```bash
      cd backend
      mvn spring-boot:run
      ```
-3. Backend starts on **`http://localhost:5000`**.
+3. Backend runs on **`http://localhost:5000`**.
 
 ---
 
-### 3. Frontend Setup (React + Vite)
-1. Navigate to the `frontend` folder and install dependencies:
+### Step 3: Running the Frontend (React + Vite)
+1. Open a new terminal tab, navigate to `frontend`, and install dependencies:
    ```bash
    cd frontend
    npm install
    ```
-2. Start the Vite development server:
+2. Start the development server:
    ```bash
    npm run dev
    ```
@@ -77,28 +85,48 @@ Ensure the following are installed on your machine:
 
 ---
 
-## Running Automated Tests
+## 5. Automated Tests
 
-To execute the JUnit 5 test suite verifying pricing calculations, date validations, and availability overlap rules:
+The backend includes a comprehensive JUnit 5 and Mockito test suite verifying calculations, business constraints, and stay overlap rules:
 
 ```bash
 cd backend
 mvn test
 ```
 
-### Test Coverage Highlights:
-- **Night & Price Calculation**: Multi-night stay calculations (`nights * pricePerNight = totalAmount`).
-- **Date Validation Rules**: Rejection of past check-ins, same-day stays, and reversed dates.
-- **Stay Overlap Algorithm**: Detection of internal overlaps, spanning stays, and permission of adjacent back-to-back stays.
-- **Capacity Limits**: Verifies booking rejection when all rooms for a property are booked.
+### Key Test Scenarios Covered:
+- **Price Calculation**: Accurate multi-night stay pricing (`nights * pricePerNight = totalAmount`).
+- **Date Validation**: Rejection of past check-in dates, same-day stays, and reversed dates.
+- **Overlap Rules**: Accurate detection of enclosed and spanning stays; permission of back-to-back stays where check-out matches existing check-in.
+- **Capacity Enforcement**: Rejection of bookings when hotel room capacity is exhausted.
 
 ---
 
-## Approximate Effort & Time Spent
-- **Total Development Effort**: ~12 hours
+## 6. Approximate Effort & Time Spent
+
+- **Total Development Effort**: **~12 hours**
 - **Breakdown**:
-  - Database schema design & sample data: 1.5 hours
-  - Spring Boot REST APIs, pessimistic locking & JUnit 5 tests: 4.5 hours
-  - React frontend, Tailwind styling & responsive UI: 4 hours
-  - Surprise Feature (Digital QR Check-in Pass) & PDF styling: 1 hour
-  - Documentation & verification: 1 hour
+  - Database schema design, composite indexing & sample data seed: **1.5 hours**
+  - Spring Boot 3 REST APIs, pessimistic locking (`FOR UPDATE`) & JUnit 5 tests: **4.5 hours**
+  - React frontend, Tailwind responsive design & date picker integration: **4 hours**
+  - Surprise Feature (Contactless QR Check-In Pass & `@media print` PDF styles): **1 hour**
+  - Edge case testing, bug fixing, and design documentation: **1 hour**
+
+---
+
+## 7. Unfinished Items (Future Roadmap)
+
+While all core and surprise requirements are fully implemented, the following items remain open for future iterations:
+1. **Interactive Amenities Filter**: The UI displays hotel amenity badges (e.g. Free WiFi, Infinity Pool, Spa); adding multi-select filter checkboxes in the search bar to filter by specific facilities.
+2. **Server-Side Pagination**: Currently all available hotels are retrieved directly; adding Spring Data `Pageable` for large-scale hotel catalogs.
+3. **Automated Email Dispatch**: Integrating an external email service (e.g., SendGrid or AWS SES) to automatically email the generated check-in pass directly to the guest.
+4. **Multiple Room Tiers**: Expanding the single room category per hotel into multiple room types (Standard, Deluxe, Executive Suite).
+
+---
+
+## 8. Documentation & AI Assistance Disclosure
+
+In accordance with assessment guidelines:
+- Official documentation for **Spring Boot 3**, **Spring Data JPA**, **Hibernate**, and **Vite** was referenced for framework configuration and database connection pooling.
+- **Google Gemini** was utilized as an AI programming assistant for scaffolding boilerplate DTO records, initial configuration templates, and troubleshooting local proxy routing.
+- All core business logic—specifically the stay interval overlap query, the `@Lock(LockModeType.PESSIMISTIC_WRITE)` concurrency mechanism, and the pricing engine—was designed, verified, and understood by the candidate, who is prepared to explain every aspect of the architecture during technical interviews.
