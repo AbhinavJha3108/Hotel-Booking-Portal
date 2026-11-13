@@ -1,6 +1,14 @@
+# Dependencies
 node_modules/
 .env
 dist/
 build/
 *.log
 .DS_Store
+
+# Java & Maven
+**/target/
+**/.vscode/
+**/.idea/
+*.iml
+.mvn/wrapper/maven-wrapper.jar

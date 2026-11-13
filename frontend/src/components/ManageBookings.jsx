@@ -44,7 +44,9 @@ export default function ManageBookings() {
     setSuccessMessage('');
 
     try {
-      const result = await cancelBooking(booking.booking_reference, booking.guest_email);
+      const ref = booking.booking_reference || booking.bookingReference;
+      const guestEmail = booking.guest_email || booking.guestEmail;
+      const result = await cancelBooking(ref, guestEmail);
       setSuccessMessage(result.message);
       // Refresh local booking status to CANCELLED
       setBooking((prev) => ({ ...prev, status: 'CANCELLED' }));

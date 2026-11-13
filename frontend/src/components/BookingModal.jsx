@@ -91,16 +91,16 @@ export default function BookingModal({ hotel, defaultCheckIn, defaultCheckOut, o
 
       setConfirmedBooking({
         ...result,
-        hotel_name: hotel.name,
-        hotel_location: hotel.location,
-        booking_reference: result.bookingReference,
-        guest_name: result.guestName,
-        guest_email: result.guestEmail,
-        check_in_date: result.checkInDate,
-        check_out_date: result.checkOutDate,
-        total_nights: result.totalNights,
-        total_amount: result.totalAmount,
-        status: result.status
+        hotel_name: result.hotel_name || result.hotelName || hotel.name,
+        hotel_location: result.hotel_location || result.hotelLocation || hotel.location,
+        booking_reference: result.booking_reference || result.bookingReference,
+        guest_name: result.guest_name || result.guestName || guestName,
+        guest_email: result.guest_email || result.guestEmail || guestEmail,
+        check_in_date: result.check_in_date || result.checkInDate || checkInDate,
+        check_out_date: result.check_out_date || result.checkOutDate || checkOutDate,
+        total_nights: result.total_nights || result.totalNights || (quote ? quote.totalNights : 1),
+        total_amount: result.total_amount || result.totalAmount || (quote ? quote.totalAmount : 0),
+        status: result.status || 'CONFIRMED'
       });
 
       if (onBookingSuccess) {
@@ -138,7 +138,9 @@ export default function BookingModal({ hotel, defaultCheckIn, defaultCheckOut, o
                   Reserve Room
                 </span>
                 <h2 className="text-xl font-bold text-slate-900 mt-0.5">{hotel.name}</h2>
-                <p className="text-xs text-slate-500 mt-1">{hotel.location} • ₹{Number(hotel.price_per_night).toLocaleString('en-IN')} / night</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  {hotel.location} • ₹{Number(hotel.price_per_night ?? hotel.pricePerNight ?? 0).toLocaleString('en-IN')} / night
+                </p>
               </div>
 
               <button

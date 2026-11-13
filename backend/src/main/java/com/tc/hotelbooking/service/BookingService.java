@@ -28,6 +28,9 @@ public class BookingService {
     }
 
     public QuoteResponseDto calculateQuote(QuoteRequestDto request) {
+        if (request.hotelId() == null) {
+            throw new InvalidBookingException("Hotel ID is required.");
+        }
         DateValidationUtils.validateDates(request.checkInDate(), request.checkOutDate());
 
         Hotel hotel = hotelRepository.findById(request.hotelId())
@@ -57,6 +60,9 @@ public class BookingService {
 
     @Transactional
     public BookingResponseDto createBooking(BookingRequestDto request) {
+        if (request.hotelId() == null) {
+            throw new InvalidBookingException("Hotel ID is required.");
+        }
         DateValidationUtils.validateDates(request.checkInDate(), request.checkOutDate());
 
         // Pessimistic lock on hotel row to serialize concurrent booking attempts

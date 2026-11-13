@@ -39,4 +39,31 @@ public record BookingResponseDto(
             booking.getHotel().getAmenities()
         );
     }
+
+    @JsonProperty("bookingReference")
+    public String getBookingReference() { return bookingReference; }
+
+    @JsonProperty("guestName")
+    public String getGuestName() { return guestName; }
+
+    @JsonProperty("guestEmail")
+    public String getGuestEmail() { return guestEmail; }
+
+    @JsonProperty("checkInDate")
+    public LocalDate getCheckInDate() { return checkInDate; }
+
+    @JsonProperty("checkOutDate")
+    public LocalDate getCheckOutDate() { return checkOutDate; }
+
+    @JsonProperty("totalNights")
+    public int getTotalNights() { return totalNights; }
+
+    @JsonProperty("totalAmount")
+    public BigDecimal getTotalAmount() { return totalAmount; }
+
+    @JsonProperty("hotelName")
+    public String getHotelName() { return hotelName; }
+
+    @JsonProperty("hotelLocation")
+    public String getHotelLocation() { return hotelLocation; }
 }

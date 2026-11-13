@@ -58,6 +58,9 @@ public class HotelService {
     }
 
     public HotelResponseDto getHotelById(Long id, LocalDate checkIn, LocalDate checkOut) {
+        if (id == null) {
+            throw new IllegalArgumentException("Hotel ID cannot be null");
+        }
         Hotel hotel = hotelRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with id: " + id));
 
